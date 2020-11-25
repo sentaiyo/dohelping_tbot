@@ -19,16 +19,23 @@ class DataBase:
             self.print_error(e)
 
     def execute_query(self, query):
+        cursor = self.connection.cursor()
         try:
-            self.connection.cursor.execute(query)
+            cursor.execute(query)
             self.connection.commit()
             print("Query executed successfully")
         except Error as e:
             self.print_error(e)
 
     def execute_read_query(self, query):
-        self.execute_query(query)
-        return self.connection.cursor.fetchall()
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(query)
+            self.connection.commit()
+            print("Query executed successfully")
+            return cursor.fetchall()
+        except Error as e:
+            self.print_error(e)
 
     def create_table(self, table_name, *parameters):
         create_users_table_query = f"""
@@ -36,27 +43,55 @@ CREATE TABLE IF NOT EXISTS {table_name}(
     id INTEGER PRIMARY KEY AUTOINCREMENT"""
         for parameter in parameters:
             create_users_table_query += f""",
-    {parameter['name']} {parameter['type']}"""
+    {parameter[0]} {parameter[1]}"""
         create_users_table_query += """
 );
 """
         self.execute_query(create_users_table_query)
 
-    def insert(self, table_name, parameters, *strings):
+    def insert(self, table_name, parameters, string1, *strings):
         insert_query = f"""
 INSERT INTO
     {table_name} {parameters}"""[:-2] + f""")
 VALUES
-    {strings[0]}"""[:-2] + ")"
-        for string in strings[1::]:
+    {string1}"""[:-2] + ")"
+        for string in strings:
             insert_query += f""",
     {string}"""[:-2] + ")"
         insert_query += ";"
 
         self.execute_query(insert_query)
 
+    def select(self, table_name, parameter1, *parameters):
+        select_query = f"""
+SELECT
+    {parameter1}"""
+        for parameter in parameters:
+            select_query += f""",
+    {parameter}"""
+        select_query += f"""
+FROM
+    {table_name}"""
+
+        return self.execute_read_query(select_query)
+
+    def select_join(self, table1_name, table2_name, table2_id_parameter, select_parameter1, *select_parameters):
+        select_query = f"""
+SELECT
+    {select_parameter1}"""
+        for select_parameter in select_parameters:
+            select_query += f""",
+    {select_parameter}"""
+        select_query += f"""
+FROM
+    {table2_name}
+    INNER JOIN {table1_name} ON {table1_name}.id = {table2_id_parameter}
+"""
+
+        return self.execute_read_query(select_query)
+
 
 class UsersData(DataBase):
     def __init__(self, path):
         self.connect(path)
-        self.create_table('users', {'name': 'name', 'type': 'TEXT NOT NULL'})
+        self.create_table('users', ['name', 'TEXT NOT NULL'])
