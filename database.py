@@ -40,7 +40,7 @@ class DataBase:
     def create_table(self, table_name, *parameters):
         create_users_table_query = f"""
 CREATE TABLE IF NOT EXISTS {table_name}(
-    id INTEGER PRIMARY KEY AUTOINCREMENT"""
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"""
         for parameter in parameters:
             create_users_table_query += f""",
     {parameter[0]} {parameter[1]}"""
@@ -49,18 +49,36 @@ CREATE TABLE IF NOT EXISTS {table_name}(
 """
         self.execute_query(create_users_table_query)
 
-    def insert(self, table_name, parameters, string1, *strings):
+    def insert_one_parameter(self, table_name, parameter, string1, strings):
         insert_query = f"""
 INSERT INTO
-    {table_name} {parameters}"""[:-2] + f""")
+    {table_name} ({parameter})
 VALUES
-    {string1}"""[:-2] + ")"
+    ('{string1}')"""
         for string in strings:
             insert_query += f""",
-    {string}"""[:-2] + ")"
+    ('{string}')"""
         insert_query += ";"
 
         self.execute_query(insert_query)
+
+    def insert(self, table_name, parameters, string1, *strings):
+        if len(parameters) == 1:
+            strings0 = ()
+            for string in strings:
+                strings0 += (string[0],)
+            self.insert_one_parameter(table_name, parameters[0], string1[0], strings0)
+        else:
+            insert_query = f"""
+INSERT INTO
+    {table_name} {parameters}
+VALUES
+    {string1}"""
+            for string in strings:
+                insert_query += f""",
+    {string}"""
+            insert_query += ";"
+            self.execute_query(insert_query)
 
     def select(self, table_name, parameter1, *parameters):
         select_query = f"""
@@ -95,3 +113,5 @@ class UsersData(DataBase):
     def __init__(self, path):
         self.connect(path)
         self.create_table('users', ['name', 'TEXT NOT NULL'])
+        self.create_table('short_tasks', ['task', 'TEXT NOT NULL'], ['user_id', """INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id)"""])
