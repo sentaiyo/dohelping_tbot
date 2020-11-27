@@ -3,9 +3,10 @@ from sqlite3 import Error
 
 
 class DataBase:
-    def __init__(self, path):
+    def __init__(self, path=None):
         self.connection = None
-        self.connect(path)
+        if path is not None:
+            self.connect(path)
 
     @staticmethod
     def print_error(error):
@@ -14,7 +15,6 @@ class DataBase:
     def connect(self, path):
         try:
             self.connection = sqlite3.connect(path)
-            print("Connection is successful")
         except Error as e:
             self.print_error(e)
 
@@ -23,7 +23,6 @@ class DataBase:
         try:
             cursor.execute(query)
             self.connection.commit()
-            print("Query executed successfully")
         except Error as e:
             self.print_error(e)
 
@@ -78,6 +77,7 @@ VALUES
                 insert_query += f""",
     {string}"""
             insert_query += ";"
+
             self.execute_query(insert_query)
 
     def select(self, table_name, parameter1, *parameters):
@@ -111,7 +111,7 @@ FROM
 
 class UsersData(DataBase):
     def __init__(self, path):
-        self.connect(path)
+        super().__init__(path)
         self.create_table('users', ['name', 'TEXT NOT NULL'])
         self.create_table('short_tasks', ['task', 'TEXT NOT NULL'], ['user_id', """INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id)"""])
