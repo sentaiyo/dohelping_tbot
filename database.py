@@ -1,11 +1,11 @@
-import config
-import telebot
+import sqlite3
 
-bot = telebot.TeleBot(config.TOKEN)
+db = sqlite3.connect('server.db')
+sql = db.cursor()
 
-@bot.message_handler(content_types=["text"])
-def repeat_all_messages(message): # Название функции не играет никакой роли
-    bot.send_message(message.chat.id, message.text)
+sql.execute("""CREATE TABLE IF NOT EXISTS users (
+    name TEXT,
+     TEXT,
+    ca
+)""")
 
-if __name__ == '__main__':
-     bot.infinity_polling()

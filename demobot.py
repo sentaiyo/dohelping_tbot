@@ -23,7 +23,7 @@ def ask_difficulty(message):
 
 def get_difficulty(message):
     difficulty = message.text
-    print(difficulty)
+    print(difficulty) #добавляем сложность новой задачи
     bot.send_message(message.chat.id, "отправь, пожалуйста, текстовым сообщением новую задачу")
     bot.register_next_step_handler(message, get_task)
 
