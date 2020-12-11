@@ -145,7 +145,7 @@ class UsersData(DataBase):
         self.create_tasks_table()
 
     def create_users_table(self):
-        self.create_table('users', None)
+        self.create_table('users', None, 'time')
 
     def create_tasks_table(self):
         self.create_table('tasks',
@@ -154,8 +154,8 @@ class UsersData(DataBase):
                           'difficulty INTEGER NOT NULL',
                           'user_id INTEGER NOT NULL')
 
-    def add_user(self, user_id):
-        self.insert('users', ('id',), (user_id,))
+    def add_user(self, user_id, time):
+        self.insert('users', ('id', 'time'), (user_id, time))
 
     def add_task(self, task, difficulty, user_id):
         self.insert('tasks', ('task', 'difficulty', 'user_id'), (task, difficulty, user_id))
@@ -166,3 +166,4 @@ class UsersData(DataBase):
         for task in tasks:
             if task[1] == user_id:
                 tasks_for_user += f'\n{task[0]}'
+        return tasks_for_user
