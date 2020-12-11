@@ -154,8 +154,17 @@ class UsersData(DataBase):
                           'difficulty INTEGER NOT NULL',
                           'user_id INTEGER NOT NULL')
 
-    def add_user(self, user_id, time):
-        self.insert('users', ('id', 'time'), (user_id, time))
+    def create_times_table(self):
+        self.create_table('times',
+                          'FOREIGN KEY (user_id) REFERENCES users (id)',
+                          'time TEXT NOT NULL',
+                          'user_id INTEGER NOT NULL')
+
+    def add_user(self, user_id):
+        self.insert('users', ('id',), (user_id,))
+
+    def add_time(self, time, user_id):
+        self.insert('times', ('time', 'user_id'), (time, user_id))
 
     def add_task(self, task, difficulty, user_id):
         self.insert('tasks', ('task', 'difficulty', 'user_id'), (task, difficulty, user_id))

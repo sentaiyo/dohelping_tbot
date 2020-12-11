@@ -21,6 +21,8 @@ def start_replier(message):
                          message.from_user, bot.get_me()),
                      parse_mode='html')
     bot.send_message(message.chat.id, "/add - добавить новую задачу\n/del - удалить задачу\n/list - список всех задач")
+    users_data = UsersData(config.table_path)
+    users_data.add_user(message.from_user.id)
 
 
 @bot.message_handler(commands=["add"])
@@ -47,9 +49,12 @@ def get_task(message):
     task = message.text
     users_data = UsersData(config.table_path)
     users_data.add_task(task, difficulty, message.from_user.id)  # добавляем task в бд к пользователю message.chat.id
+
+
+@bot.message_handler(commands=['add_time'])
+def add_new_time(message):
     bot.send_message(message.from_user.id, "Укажи время, когда ты свободен\n"
-                                           "Например, утром, перед работой/учёбой или вечером после основных дел",
-                     reply_markup=telebot.types.ReplyKeyboardRemove())
+                                           "Например, утром, перед работой/учёбой или вечером после основных дел")
     bot.register_next_step_handler(message, add_new_user)
 
 
@@ -59,7 +64,7 @@ def add_new_user(message):
     user_id = message.from_user.id
     time = message.text
     users_data = UsersData(config.table_path)
-    users_data.add_user(user_id, time)
+    users_data.add_time(time, user_id)
     bot.reply_to(message, "Готово")
     Thread(target=schedule_checker(time)).start()
 
