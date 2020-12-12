@@ -38,11 +38,6 @@ def get_difficulty(message):
     bot.register_next_step_handler(message, get_task)
 
 
-"""def add_task(message):
-    bot.send_message(message.chat.id, "отправь, пожалуйста, текстовым сообщением новую задачу")
-    bot.register_next_step_handler(message, get_task)"""
-
-
 def get_task(message):
     global task
     global difficulty
@@ -51,8 +46,6 @@ def get_task(message):
     users_data.add_task(task, difficulty, message.from_user.id)  # добавляем task в бд к пользователю message.chat.id
 
 
-@bot.message_handler(commands=['add_time'])
-def add_new_time(message):
     bot.send_message(message.from_user.id, "Укажи время, когда ты свободен\n"
                                            "Например, утром, перед работой/учёбой или вечером после основных дел")
     bot.register_next_step_handler(message, add_new_user)
