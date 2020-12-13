@@ -44,7 +44,7 @@ def get_task(message):
     task = message.text
     users_data = UsersData(config.table_path)
     users_data.add_task(task, difficulty, message.from_user.id)  # добавляем task в бд к пользователю message.chat.id
-
+    bot.send_message(message.from_user.id, "Готово\n")
 
     bot.send_message(message.from_user.id, "Укажи время, когда ты свободен\n"
                                            "Например, утром, перед работой/учёбой или вечером после основных дел")
