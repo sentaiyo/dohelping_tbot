@@ -176,3 +176,6 @@ class UsersData(DataBase):
             if task[1] == user_id:
                 tasks_for_user += f'\n{task[0]}'
         return tasks_for_user
+
+    def delete_task(self, task):
+        self.delete('tasks', 'task', task)
