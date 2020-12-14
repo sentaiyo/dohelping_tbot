@@ -20,7 +20,7 @@ def start_replier(message):
                      "тебе быть продуктивнее".format(
                          message.from_user, bot.get_me()),
                      parse_mode='html')
-    bot.send_message(message.chat.id, "/add - добавить новую задачу\n/del - удалить задачу\n/list - список всех задач")
+    bot.send_message(message.chat.id, "/add - добавить новую задачу\n/del - удалить задачу\n/list - список всех задач\n/set_time - создать уведомление")
     users_data = UsersData(config.table_path)
     users_data.add_user(message.from_user.id)
 
@@ -46,6 +46,13 @@ def get_task(message):
     users_data.add_task(task, difficulty, message.from_user.id)  # добавляем task в бд к пользователю message.chat.id
 
 
+    bot.send_message(message.from_user.id, "Укажи время, когда ты свободен\n"
+                                           "Например, утром, перед работой/учёбой или вечером после основных дел")
+    bot.register_next_step_handler(message, add_new_user)
+
+
+@bot.message_handler(commands=["set_time"])
+def set_time(message):
     bot.send_message(message.from_user.id, "Укажи время, когда ты свободен\n"
                                            "Например, утром, перед работой/учёбой или вечером после основных дел")
     bot.register_next_step_handler(message, add_new_user)
