@@ -20,7 +20,7 @@ def start_replier(message):
                      "тебе быть продуктивнее".format(
                          message.from_user, bot.get_me()),
                      parse_mode='html')
-    bot.send_message(message.chat.id, "/add - добавить новую задачу\n/del - удалить задачу\n/list - список всех задач")
+    bot.send_message(message.chat.id, "/add - добавить новую задачу\n/del - удалить задачу\n/list - список всех задач\n/set_time - создать уведомление")
     users_data = UsersData(config.table_path)
     users_data.add_user(message.from_user.id)
 
@@ -38,11 +38,6 @@ def get_difficulty(message):
     bot.register_next_step_handler(message, get_task)
 
 
-"""def add_task(message):
-    bot.send_message(message.chat.id, "отправь, пожалуйста, текстовым сообщением новую задачу")
-    bot.register_next_step_handler(message, get_task)"""
-
-
 def get_task(message):
     global task
     global difficulty
@@ -51,8 +46,13 @@ def get_task(message):
     users_data.add_task(task, difficulty, message.from_user.id)  # добавляем task в бд к пользователю message.chat.id
 
 
-@bot.message_handler(commands=['add_time'])
-def add_new_time(message):
+    bot.send_message(message.from_user.id, "Укажи время, когда ты свободен\n"
+                                           "Например, утром, перед работой/учёбой или вечером после основных дел")
+    bot.register_next_step_handler(message, add_new_user)
+
+
+@bot.message_handler(commands=["set_time"])
+def set_time(message):
     bot.send_message(message.from_user.id, "Укажи время, когда ты свободен\n"
                                            "Например, утром, перед работой/учёбой или вечером после основных дел")
     bot.register_next_step_handler(message, add_new_user)
@@ -78,8 +78,10 @@ def schedule_checker(time):
 
 
 def send_wakeup_message():
-    bot.send_message(user_id, "wakeup")
-
+    bot.send_message(user_id, "Время взяться за работу\nвот список твоих текущих задач:")
+    users_data = UsersData(config.table_path)
+    task_list = users_data.get_tasks_for_user(user_id)
+    bot.send_message(user_id, task_list)
 
 @bot.message_handler(commands=["del"])
 def del_task(message):
