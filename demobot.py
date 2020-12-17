@@ -69,15 +69,6 @@ def get_difficulty(call):
     except Exception as e:
         print(repr(e))
 
-"""def get_difficulty(message):
-    global difficulty
-    difficulty = message.text  # добавляем сложность новой задачи
-    bot.send_message(message.chat.id, "отправь, пожалуйста, текстовым сообщением новую задачу")
-    bot.register_next_step_handler(message, get_task)"""
-
-
-
-
 
 @bot.message_handler(commands=["set_time"])
 def set_time(call):
