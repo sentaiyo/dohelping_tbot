@@ -26,29 +26,23 @@ def start_replier(message):
 
 
 def send_menu(message):
-    bot.send_message(message.chat.id, "/add - добавить новую задачу\n/del - удалить задачу\n/list - список всех задач\n/set_time - создать уведомление")
+    bot.send_message(message.chat.id, "/add - добавить новую задачу\n"
+                                      "/del - удалить задачу\n"
+                                      "/list - список всех задач\n"
+                                      "/set_time - создать уведомление")
 
 
 @bot.message_handler(commands=["add"])
 def ask_difficulty(message):
-    bot.send_message(message.chat.id, "отправь, пожалуйста, сложность своей задачи от 1 до 3")
-    bot.register_next_step_handler(message, get_difficulty)
-
-
-def get_difficulty(message):
-    global difficulty
-    difficulty = message.text  # добавляем сложность новой задачи
     bot.send_message(message.chat.id, "отправь, пожалуйста, текстовым сообщением новую задачу")
     bot.register_next_step_handler(message, get_task)
 
 
 def get_task(message):
     global task
-    global difficulty
+    global user_id
     task = message.text
-    users_data = UsersData(config.table_path)
-    users_data.add_task(task, difficulty, message.from_user.id)  # добавляем task в бд к пользователю message.chat.id
-
+    user_id = message.from_user.id
     markup = types.InlineKeyboardMarkup(row_width=2)
     item1 = types.InlineKeyboardButton("Простая", callback_data='1')
     item2 = types.InlineKeyboardButton("Не очень", callback_data='2')
@@ -63,6 +57,12 @@ def get_task(message):
 def get_difficulty(call):
     try:
         if call.message:
+            global task
+            global difficulty
+            global user_id
+            difficulty = call.data
+            users_data = UsersData(config.table_path)
+            users_data.add_task(task, difficulty, user_id)  # добавляем task в бд к пользователю message.chat.id
             if call.data == '1':
                 print(" ")
             elif call.data == '2':
@@ -70,21 +70,22 @@ def get_difficulty(call):
             elif call.data == "3":
                 print(" ")
             # remove inline buttons
-            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="отправь, пожалуйста, сложность своей задачи",
+            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  text="отправь, пожалуйста, сложность своей задачи",
                                   reply_markup=None)
-            set_time(call)
+            set_time(call.message)
     except Exception as e:
         print(repr(e))
 
 
 @bot.message_handler(commands=["set_time"])
 def set_time(call):
-    bot.send_message(call.message.chat.id, "Укажи время, когда ты свободен\n"
-                                           "Например, утром, перед работой/учёбой или вечером после основных дел")
-    bot.register_next_step_handler(call.message, add_new_user)
+    bot.send_message(call.chat.id, "Укажи время, когда ты свободен\n"
+                                   "Например, утром, перед работой/учёбой или вечером после основных дел")
+    bot.register_next_step_handler(call, add_new_time)
 
 
-def add_new_user(message):
+def add_new_time(message):
     global user_id
     global time
     user_id = message.from_user.id
@@ -110,6 +111,7 @@ def send_wakeup_message():
     task_list = users_data.get_tasks_for_user(user_id)
     bot.send_message(user_id, task_list)
 
+
 @bot.message_handler(commands=["del"])
 def del_task(message):
     bot.send_message(message.from_user.id,
@@ -124,14 +126,16 @@ def remove_task_from_data_base(message):
     users_data = UsersData(config.table_path)
     users_data.delete_task(task)
     bot.send_message(message.from_user.id,
-                     f'Готово, теперь список:\n{get_tasks_list(message.from_user.id)}')  # удаляем task из бд пользователя message.chat.id
+                     f'Готово, теперь список:\n{get_tasks_list(message.from_user.id)}')
+    # удаляем task из бд пользователя message.chat.id
 
     send_menu(message)
 
 
 @bot.message_handler(commands=["list"])
 def list_tasks(message):
-    bot.send_message(message.from_user.id, get_tasks_list(message.from_user.id))  # в list cписок всех задач пользователя
+    bot.send_message(message.from_user.id, get_tasks_list(message.from_user.id))
+    # в list cписок всех задач пользователя
     send_menu(message)
 
 
@@ -145,6 +149,7 @@ def get_tasks_list(user_id):
 def echo_all(message):
     bot.reply_to(message, message.text)
     send_menu(message)
+
 
 if __name__ == '__main__':
      bot.infinity_polling()
