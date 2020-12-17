@@ -170,12 +170,19 @@ class UsersData(DataBase):
         self.insert('tasks', ('task', 'difficulty', 'user_id'), (task, difficulty, user_id))
 
     def get_tasks_for_user(self, user_id):
-        tasks = self.select('tasks', 'task', 'user_id')
-        tasks_for_user = ''
+        tasks = self.select('tasks', 'task', 'user_id', 'difficulty')
+        tasks_for_user1 = ''
+        tasks_for_user2 = ''
+        tasks_for_user3 = ''
         for task in tasks:
             if task[1] == user_id:
-                tasks_for_user += f'\n{task[0]}'
-        return tasks_for_user
+                if task[2] == 1:
+                    tasks_for_user1 += f'\n1. {task[0]}'
+                if task[2] == 2:
+                    tasks_for_user2 += f'\n2. {task[0]}'
+                if task[2] == 3:
+                    tasks_for_user3 += f'\n3. {task[0]}'
+        return tasks_for_user1 + tasks_for_user2 + tasks_for_user3
 
     def delete_task(self, task):
         self.delete('tasks', 'task', task)

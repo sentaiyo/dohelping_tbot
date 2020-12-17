@@ -16,11 +16,15 @@ user_id = None
 
 @bot.message_handler(commands=["start", "help"])
 def start_replier(message):
-    bot.send_message(message.chat.id, "Привет 💫, {0.first_name}!\nменя зовут toDoBot и я умный бот, который поможет "
-                     "тебе быть продуктивнее".format(
+    bot.send_message(message.chat.id, "Привет 💫, {0.first_name}!\n"
+                                      "меня зовут toDoBot и я умный бот,"
+                                      " который поможет тебе быть продуктивнее".format(
                          message.from_user, bot.get_me()),
                      parse_mode='html')
-    bot.send_message(message.chat.id, "/add - добавить новую задачу\n/del - удалить задачу\n/list - список всех задач\n/set_time - создать уведомление")
+    bot.send_message(message.chat.id, "/add - добавить новую задачу\n"
+                                      "/del - удалить задачу\n"
+                                      "/list - список всех задач\n"
+                                      "/set_time - создать уведомление")
     users_data = UsersData(config.table_path)
     users_data.add_user(message.from_user.id)
 
@@ -44,8 +48,6 @@ def get_task(message):
     task = message.text
     users_data = UsersData(config.table_path)
     users_data.add_task(task, difficulty, message.from_user.id)  # добавляем task в бд к пользователю message.chat.id
-
-
     bot.send_message(message.from_user.id, "Укажи время, когда ты свободен\n"
                                            "Например, утром, перед работой/учёбой или вечером после основных дел")
     bot.register_next_step_handler(message, add_new_user)
@@ -83,6 +85,7 @@ def send_wakeup_message():
     task_list = users_data.get_tasks_for_user(user_id)
     bot.send_message(user_id, task_list)
 
+
 @bot.message_handler(commands=["del"])
 def del_task(message):
     bot.send_message(message.chat.id, "отправь задачу, которую нужно удалить")
@@ -95,12 +98,14 @@ def remove_task_from_data_base(message):
     users_data = UsersData(config.table_path)
     users_data.delete_task(task)
     bot.send_message(message.from_user.id,
-                     f'Готово, теперб список:\n{get_tasks_list(message.from_user.id)}')  # удаляем task из бд пользователя message.chat.id
+                     f'Готово, теперб список:\n{get_tasks_list(message.from_user.id)}')
+    # удаляем task из бд пользователя message.chat.id
 
 
 @bot.message_handler(commands=["list"])
 def list_tasks(message):
-    bot.send_message(message.from_user.id, get_tasks_list(message.from_user.id))  # в list cписок всех задач пользователя
+    bot.send_message(message.from_user.id, get_tasks_list(message.from_user.id))
+    # в list cписок всех задач пользователя
 
 
 def get_tasks_list(user_id):
