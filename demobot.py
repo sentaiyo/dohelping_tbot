@@ -134,7 +134,8 @@ def remove_task_from_data_base(message):
 
 @bot.message_handler(commands=["list"])
 def list_tasks(message):
-    bot.send_message(message.from_user.id, get_tasks_list(message.from_user.id))
+    task_list = get_tasks_list(message.from_user.id)
+    bot.send_message(message.from_user.id, task_list)
     # в list cписок всех задач пользователя
     send_menu(message)
 
@@ -142,6 +143,8 @@ def list_tasks(message):
 def get_tasks_list(user_id):
     users_data = UsersData(config.table_path)
     task_list = users_data.get_tasks_for_user(user_id)
+    if len(task_list) == 0:
+        task_list = 'список пуст'
     return task_list
 
 

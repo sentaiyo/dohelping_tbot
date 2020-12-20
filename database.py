@@ -178,11 +178,14 @@ class UsersData(DataBase):
         for task in tasks:
             if task[1] == user_id:
                 if task[2] == 1:
-                    tasks_for_user1 += f'\n1. {task[0]}'
+                    tasks_for_user1 += f'\n{task[0]}\n' \
+                                       f'простая задача\n'
                 if task[2] == 2:
-                    tasks_for_user2 += f'\n2. {task[0]}'
+                    tasks_for_user2 += f'\n{task[0]}\n' \
+                                       f'средняя задача\n'
                 if task[2] == 3:
-                    tasks_for_user3 += f'\n3. {task[0]}'
+                    tasks_for_user3 += f'\n{task[0]}\n' \
+                                       f'сложная задача\n'
         return tasks_for_user1 + tasks_for_user2 + tasks_for_user3
 
     def delete_task(self, task):
