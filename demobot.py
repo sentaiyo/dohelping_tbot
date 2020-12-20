@@ -84,7 +84,10 @@ def add_new_time(message):
     global user_id
     global time
     user_id = message.from_user.id
-    time = message.text
+    if len(message.text) == 5:
+        time = message.text
+    else:
+        time = "0" + message.text
     users_data = UsersData(config.table_path)
     users_data.add_time(time, user_id)
     bot.reply_to(message, "Готово")
