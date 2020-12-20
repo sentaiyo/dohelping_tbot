@@ -100,7 +100,7 @@ def schedule_checker(time):
 
 
 def send_wakeup_message():
-    bot.send_message(user_id, "Время взяться за работу\nнайчинать лучше с трудных задач:")
+    bot.send_message(user_id, "Время взяться за работу\nнайчинай лучше со сложной задачи:")
     users_data = UsersData(config.table_path)
     task_list = users_data.get_tasks_for_user(user_id)
     bot.send_message(user_id, task_list)
