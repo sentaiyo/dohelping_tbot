@@ -1,44 +1,44 @@
-import telebot
-import config
-from database import UsersData
-import schedule
+import telebot  # library for working with telegram API
+import config   # file with TOKEN and SQlite table path
+from database import UsersData  # data from database
+import schedule  # working with time
 from threading import Thread
-from time import sleep
-from telebot import types
+from time import sleep  # func for timer
+from telebot import types  # module for bot configuration
 
 
-bot = telebot.TeleBot(config.TOKEN)
+bot = telebot.TeleBot(config.TOKEN)  # creating bot
 difficulty = None
-task = None
+task = None    # global variables
 time = None
 user_id = None
 
 
-@bot.message_handler(commands=["start", "help"])
+@bot.message_handler(commands=["start", "help"])  # bot answers /start /help
 def start_replier(message):
     bot.send_message(message.chat.id, "Привет 💫, {0.first_name}!\nменя зовут toDoBot и я бот, который поможет "
                      "тебе быть продуктивнее".format(
                          message.from_user, bot.get_me()),
                      parse_mode='html')
     send_menu(message)
-    users_data = UsersData(config.table_path)
+    users_data = UsersData(config.table_path)  # adding user to database
     users_data.add_user(message.from_user.id)
 
 
-def send_menu(message):
+def send_menu(message): # bot sends all possible commands
     bot.send_message(message.chat.id, "/add - добавить новую задачу\n"
                                       "/del - удалить задачу\n"
                                       "/list - список всех задач\n"
                                       "/set_time - создать уведомление")
 
 
-@bot.message_handler(commands=["add"])
+@bot.message_handler(commands=["add"])  # function for adding new goal
 def ask_difficulty(message):
     bot.send_message(message.chat.id, "отправь, пожалуйста, текстовым сообщением новую задачу")
     bot.register_next_step_handler(message, get_task)
 
 
-def get_task(message):
+def get_task(message):  # function takes goal information from user
     global task
     global user_id
     task = message.text
@@ -80,7 +80,7 @@ def get_difficulty(call):
 
 @bot.message_handler(commands=["set_time"])
 def set_time(call):
-    bot.send_message(call.chat.id, "Укажи время, когда ты свободен\n"
+    bot.send_message(call.chat.id, "Укажи время, когда ты свободен в 24 часовом формате, через :\n"
                                    "Например, утром, перед работой/учёбой или вечером после основных дел")
     bot.register_next_step_handler(call, add_new_time)
 
