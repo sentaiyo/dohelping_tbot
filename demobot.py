@@ -26,15 +26,15 @@ def start_replier(message):
 
 
 def send_menu(message): # bot sends all possible commands
-    bot.send_message(message.chat.id, "/add - добавить новую задачу\n"
-                                      "/del - удалить задачу\n"
-                                      "/list - список всех задач\n"
-                                      "/set_time - создать уведомление")
+    bot.send_message(message.chat.id, "/add - добавить новую задачу👩‍💻\n"
+                                      "/del - удалить задачу❌\n"
+                                      "/list - список всех задач🌐\n"
+                                      "/set_time - создать уведомление✅")
 
 
 @bot.message_handler(commands=["add"])  # function for adding new goal
 def ask_difficulty(message):
-    bot.send_message(message.chat.id, "отправь, пожалуйста, текстовым сообщением новую задачу")
+    bot.send_message(message.chat.id, "отправь, пожалуйста, текстовым сообщением новую задачу🛩")
     bot.register_next_step_handler(message, get_task)
 
 
@@ -46,11 +46,11 @@ def get_task(message):  # function takes goal information from user
     markup = types.InlineKeyboardMarkup(row_width=2)
     item1 = types.InlineKeyboardButton("Простая", callback_data='1')
     item2 = types.InlineKeyboardButton("Не очень", callback_data='2')
-    item3 = types.InlineKeyboardButton("Сложая", callback_data='3')
+    item3 = types.InlineKeyboardButton("Сложная", callback_data='3')
 
     markup.add(item1, item2, item3)
 
-    bot.send_message(message.chat.id, "отправь, пожалуйста, сложность своей задачи", reply_markup=markup)
+    bot.send_message(message.chat.id, "отправь, пожалуйста, сложность🤯 своей задачи", reply_markup=markup)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -65,7 +65,7 @@ def get_difficulty(call):
             users_data.add_task(task, difficulty, user_id)  # добавляем task в бд к пользователю message.chat.id
             # remove inline buttons
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                  text="отправь, пожалуйста, сложность своей задачи",
+                                  text="отправь, пожалуйста, сложность🤯 своей задачи",
                                   reply_markup=None)
             set_time(call.message)
     except Exception as e:
@@ -74,7 +74,8 @@ def get_difficulty(call):
 
 @bot.message_handler(commands=["set_time"])
 def set_time(call):
-    bot.send_message(call.chat.id, "Укажи время в 24 часовом формате, когда ты планируешь сделать эту задачу, через :\n"
+    bot.send_message(call.chat.id, "Установи время⏰ на ближайшие сутки в 24 часовом формате, когда ты планируешь "
+                                   "сделать эту задачу, через :\n"
                                    "Например, утром, перед работой/учёбой или вечером после основных дел")
     bot.register_next_step_handler(call, add_new_time)
 
@@ -100,7 +101,7 @@ def schedule_checker(time):
 
 
 def send_wakeup_message():
-    bot.send_message(user_id, "Время взяться за работу\nнайчинай лучше со сложной задачи:")
+    bot.send_message(user_id, "🔥🔥🔥Время взяться за работу🔥🔥🔥\nнайчинай лучше со сложной задачи:")
     users_data = UsersData(config.table_path)
     task_list = users_data.get_tasks_for_user(user_id)
     bot.send_message(user_id, task_list)
