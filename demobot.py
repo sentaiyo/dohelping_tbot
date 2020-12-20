@@ -63,12 +63,6 @@ def get_difficulty(call):
             difficulty = call.data
             users_data = UsersData(config.table_path)
             users_data.add_task(task, difficulty, user_id)  # добавляем task в бд к пользователю message.chat.id
-            if call.data == '1':
-                print(" ")
-            elif call.data == '2':
-                print(" ")
-            elif call.data == "3":
-                print(" ")
             # remove inline buttons
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   text="отправь, пожалуйста, сложность своей задачи",
@@ -80,7 +74,7 @@ def get_difficulty(call):
 
 @bot.message_handler(commands=["set_time"])
 def set_time(call):
-    bot.send_message(call.chat.id, "Укажи время, когда ты свободен в 24 часовом формате, через :\n"
+    bot.send_message(call.chat.id, "Укажи время в 24 часовом формате, когда ты планируешь сделать эту задачу, через :\n"
                                    "Например, утром, перед работой/учёбой или вечером после основных дел")
     bot.register_next_step_handler(call, add_new_time)
 
@@ -106,7 +100,7 @@ def schedule_checker(time):
 
 
 def send_wakeup_message():
-    bot.send_message(user_id, "Время взяться за работу\nвот список твоих текущих задач:")
+    bot.send_message(user_id, "Время взяться за работу\nнайчинать лучше с трудных задач:")
     users_data = UsersData(config.table_path)
     task_list = users_data.get_tasks_for_user(user_id)
     bot.send_message(user_id, task_list)
