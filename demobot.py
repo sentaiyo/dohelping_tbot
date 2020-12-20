@@ -74,8 +74,8 @@ def get_difficulty(call):
 
 @bot.message_handler(commands=["set_time"])
 def set_time(call):
-    bot.send_message(call.chat.id, "Установи время⏰ на ближайшие сутки в 24 часовом формате, когда ты планируешь "
-                                   "сделать эту задачу, через :\n"
+    bot.send_message(call.chat.id, "Установи время⏰ на ближайшие сутки в 24 часовом формате через двоеточие, когда ты планируешь "
+                                   "начать работу\n"
                                    "Например, утром, перед работой/учёбой или вечером после основных дел")
     bot.register_next_step_handler(call, add_new_time)
 
