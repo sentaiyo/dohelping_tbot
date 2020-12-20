@@ -186,7 +186,7 @@ class UsersData(DataBase):
                 if task[2] == 3:
                     tasks_for_user3 += f'\n{task[0]}\n' \
                                        f'сложная задача\n'
-        return tasks_for_user1 + tasks_for_user2 + tasks_for_user3
+        return tasks_for_user3 + tasks_for_user2 + tasks_for_user1
 
     def delete_task(self, task):
         self.delete('tasks', 'task', task)
