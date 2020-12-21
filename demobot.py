@@ -45,7 +45,7 @@ def get_task(message):  # function takes goal information from user
     user_id = message.from_user.id
     markup = types.InlineKeyboardMarkup(row_width=2)
     item1 = types.InlineKeyboardButton("Простая", callback_data='1')
-    item2 = types.InlineKeyboardButton("Не очень", callback_data='2')
+    item2 = types.InlineKeyboardButton("Средняя", callback_data='2')
     item3 = types.InlineKeyboardButton("Сложная", callback_data='3')
 
     markup.add(item1, item2, item3)
