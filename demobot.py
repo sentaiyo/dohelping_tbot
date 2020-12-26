@@ -23,6 +23,7 @@ def start_replier(message):
     send_menu(message)
     users_data = UsersData(config.table_path)  # adding user to database
     users_data.add_user(message.from_user.id)
+    users_data.connection.close()
 
 
 def send_menu(message):  # bot sends all possible commands
@@ -68,6 +69,7 @@ def get_difficulty(call):
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   text="отправь, пожалуйста, сложность🤯 своей задачи",
                                   reply_markup=None)
+            users_data.connection.close()
             set_time(call.message)
     except Exception as e:
         print(repr(e))
@@ -91,6 +93,7 @@ def add_new_time(message):
         time = "0" + time
     users_data = UsersData(config.table_path)
     users_data.add_time(time, user_id)
+    users_data.connection.close()
     bot.reply_to(message, "Готово")
     send_menu(message)
     Thread(target=schedule_checker(time)).start()
@@ -109,6 +112,7 @@ def send_wakeup_message():
     users_data = UsersData(config.table_path)
     task_list = users_data.get_tasks_for_user(user_id)
     bot.send_message(user_id, task_list)
+    users_data.connection.close()
 
 
 @bot.message_handler(commands=["del"])
@@ -134,6 +138,7 @@ def add_completed_task(message):
     users_data.add_completed_task(task, message.from_user.id)
     bot.send_message(message.from_user.id,
                      f'Отлично, теперь список оставшихся заданий:\n{get_completed_tasks_list(message.from_user.id)}')
+    users_data.connection.close()
     remove_task_from_data_base(message)
 
 
@@ -145,6 +150,7 @@ def remove_task_from_data_base(message):
     bot.send_message(message.from_user.id,
                      f'Готово, теперь список:\n{get_tasks_list(message.from_user.id)}')
     # удаляем task из бд пользователя message.chat.id
+    users_data.connection.close()
 
     send_menu(message)
 
@@ -163,6 +169,7 @@ def get_tasks_list(user_id):
     task_list = users_data.get_tasks_for_user(user_id)
     if len(task_list) == 0:
         task_list = 'список пуст'
+    users_data.connection.close()
     return task_list
 
 
@@ -171,6 +178,7 @@ def get_completed_tasks_list(user_id):
     task_list = users_data.get_completed_tasks_for_user(user_id)
     if len(task_list) == 0:
         task_list = 'список пуст'
+    users_data.connection.close()
     return task_list
 
 
