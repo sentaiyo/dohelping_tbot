@@ -1,11 +1,10 @@
 import telebot  # library for working with telegram API
-import config   # file with TOKEN and SQlite table path
+import config   # file with TOKEN and SOlite table path
 from database import UsersData  # data from database
 import schedule  # working with time
-from threading import Thread
+from threading import Thread  # running multiple operations simultaneously
 from time import sleep  # func for timer
 from telebot import types  # module for bot configuration
-
 
 bot = telebot.TeleBot(config.TOKEN)  # creating bot
 difficulty = None
@@ -25,7 +24,7 @@ def start_replier(message):
     users_data.add_user(message.from_user.id)
 
 
-def send_menu(message): # bot sends all possible commands
+def send_menu(message):  # bot sends all possible commands
     bot.send_message(message.chat.id, "/add - добавить новую задачу👩‍💻\n"
                                       "/del - удалить задачу❌\n"
                                       "/list - список всех задач🌐\n"
@@ -48,12 +47,12 @@ def get_task(message):  # function takes goal information from user
     item2 = types.InlineKeyboardButton("Средняя", callback_data='2')
     item3 = types.InlineKeyboardButton("Сложная", callback_data='3')
 
-    markup.add(item1, item2, item3)
+    markup.add(item1, item2, item3)  # creating buttons
 
     bot.send_message(message.chat.id, "отправь, пожалуйста, сложность🤯 своей задачи", reply_markup=markup)
 
 
-@bot.callback_query_handler(func=lambda call: True)
+@bot.callback_query_handler(func=lambda call: True)  # func fot this handler
 def get_difficulty(call):
     try:
         if call.message:
@@ -62,7 +61,7 @@ def get_difficulty(call):
             global user_id
             difficulty = call.data
             users_data = UsersData(config.table_path)
-            users_data.add_task(task, difficulty, user_id)  # добавляем task в бд к пользователю message.chat.id
+            users_data.add_task(task, difficulty, user_id)  # add the task to the database to user message.chat.id
             # remove inline buttons
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   text="отправь, пожалуйста, сложность🤯 своей задачи",
@@ -79,6 +78,17 @@ def set_time(call):
                                    "Например, утром, перед работой/учёбой или вечером после основных дел")
     bot.register_next_step_handler(call, add_new_time)
 
+
+def print_hi(time):  #
+    timeHM = time.split(":")
+    if len(timeHM[0]) == 1:
+        time = '0' + time
+    print(time)
+
+
+# Press the green button in the gutter to run the script.
+if __name__ == '__main__':
+    print_hi('3:20')
 
 def add_new_time(message):
     global user_id
