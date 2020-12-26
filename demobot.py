@@ -77,18 +77,7 @@ def set_time(call):
                                    "начать работу\n"
                                    "Например, утром, перед работой/учёбой или вечером после основных дел")
     bot.register_next_step_handler(call, add_new_time)
-
-
-def print_hi(time):  #
-    timeHM = time.split(":")
-    if len(timeHM[0]) == 1:
-        time = '0' + time
-    print(time)
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('3:20')
+    
 
 def add_new_time(message):
     global user_id
