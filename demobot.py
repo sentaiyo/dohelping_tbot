@@ -25,7 +25,7 @@ def start_replier(message):
     users_data.add_user(message.from_user.id)
 
 
-def send_menu(message): # bot sends all possible commands
+def send_menu(message):  # bot sends all possible commands
     bot.send_message(message.chat.id, "/add - добавить новую задачу👩‍💻\n"
                                       "/del - удалить задачу❌\n"
                                       "/list - список всех задач🌐\n"
@@ -74,7 +74,8 @@ def get_difficulty(call):
 
 @bot.message_handler(commands=["set_time"])
 def set_time(call):
-    bot.send_message(call.chat.id, "Установи время⏰ на ближайшие сутки в 24 часовом формате через двоеточие, когда ты планируешь "
+    bot.send_message(call.chat.id, "Установи время⏰ на ближайшие сутки в 24 часовом формате через двоеточие, "
+                                   "когда ты планируешь "
                                    "начать работу\n"
                                    "Например, утром, перед работой/учёбой или вечером после основных дел")
     bot.register_next_step_handler(call, add_new_time)
@@ -117,6 +118,24 @@ def del_task(message):
     bot.register_next_step_handler(message, remove_task_from_data_base)
 
 
+@bot.message_handler(commands=["task_completed"])
+def del_completed_task(message):
+    bot.send_message(message.from_user.id,
+                     f'Список задач:\n{get_tasks_list(message.from_user.id)}')
+    bot.send_message(message.chat.id, "отправь, пожалуйста, текстовым сообщением задачу, которую ты выполнил")
+    bot.register_next_step_handler(message, add_completed_task)
+
+
+def add_completed_task(message):
+    global task
+    task = message.text
+    users_data = UsersData(config.table_path)
+    users_data.add_completed_task(task, message.from_user.id)
+    bot.send_message(message.from_user.id,
+                     f'Отлично, теперь список оставшихся заданий:\n{get_completed_tasks_list(message.from_user.id)}')
+    remove_task_from_data_base(message)
+
+
 def remove_task_from_data_base(message):
     global task
     task = message.text
@@ -131,7 +150,7 @@ def remove_task_from_data_base(message):
 
 @bot.message_handler(commands=["list"])
 def list_tasks(message):
-    task_list = get_tasks_list(message.from_user.id)
+    task_list = get_tasks_list(message.from_user.id) + get_completed_tasks_list(message.from_user.id)
     bot.send_message(message.from_user.id, task_list)
     # в list cписок всех задач пользователя
     send_menu(message)
@@ -140,6 +159,14 @@ def list_tasks(message):
 def get_tasks_list(user_id):
     users_data = UsersData(config.table_path)
     task_list = users_data.get_tasks_for_user(user_id)
+    if len(task_list) == 0:
+        task_list = 'список пуст'
+    return task_list
+
+
+def get_completed_tasks_list(user_id):
+    users_data = UsersData(config.table_path)
+    task_list = users_data.get_completed_tasks_for_user(user_id)
     if len(task_list) == 0:
         task_list = 'список пуст'
     return task_list
