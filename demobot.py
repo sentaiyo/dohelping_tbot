@@ -1,8 +1,8 @@
 import telebot  # library for working with telegram API
-import config   # file with TOKEN and SQlite table path
+import config   # file with TOKEN and SOlite table path
 from database import UsersData  # data from database
 import schedule  # working with time
-from threading import Thread
+from threading import Thread  # running multiple operations simultaneously
 from time import sleep  # func for timer
 from telebot import types  # module for bot configuration
 
@@ -45,15 +45,15 @@ def get_task(message):  # function takes goal information from user
     user_id = message.from_user.id
     markup = types.InlineKeyboardMarkup(row_width=2)
     item1 = types.InlineKeyboardButton("Простая", callback_data='1')
-    item2 = types.InlineKeyboardButton("Не очень", callback_data='2')
+    item2 = types.InlineKeyboardButton("Средняя", callback_data='2')
     item3 = types.InlineKeyboardButton("Сложная", callback_data='3')
 
-    markup.add(item1, item2, item3)
+    markup.add(item1, item2, item3)  # creating buttons
 
     bot.send_message(message.chat.id, "отправь, пожалуйста, сложность🤯 своей задачи", reply_markup=markup)
 
 
-@bot.callback_query_handler(func=lambda call: True)
+@bot.callback_query_handler(func=lambda call: True)  # func fot this handler
 def get_difficulty(call):
     try:
         if call.message:
@@ -62,7 +62,7 @@ def get_difficulty(call):
             global user_id
             difficulty = call.data
             users_data = UsersData(config.table_path)
-            users_data.add_task(task, difficulty, user_id)  # добавляем task в бд к пользователю message.chat.id
+            users_data.add_task(task, difficulty, user_id)  # add the task to the database to user message.chat.id
             # remove inline buttons
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   text="отправь, пожалуйста, сложность🤯 своей задачи",
@@ -151,6 +151,7 @@ def remove_task_from_data_base(message):
 @bot.message_handler(commands=["list"])
 def list_tasks(message):
     task_list = get_tasks_list(message.from_user.id) + get_completed_tasks_list(message.from_user.id)
+    bot.send_message(message.from_user.id, "начинать лучше со сложной задачи:")
     bot.send_message(message.from_user.id, task_list)
     # в list cписок всех задач пользователя
     send_menu(message)
@@ -174,7 +175,7 @@ def get_completed_tasks_list(user_id):
 
 @bot.message_handler(func=lambda message: True)
 def echo_all(message):
-    bot.reply_to(message, message.text)
+    bot.reply_to(message, "я тебя не понимаю((")
     send_menu(message)
 
 
