@@ -6,6 +6,7 @@ from threading import Thread  # running multiple operations simultaneously
 from time import sleep  # func for timer
 from telebot import types  # module for bot configuration
 
+
 bot = telebot.TeleBot(config.TOKEN)  # creating bot
 difficulty = None
 task = None    # global variables
@@ -28,7 +29,8 @@ def send_menu(message):  # bot sends all possible commands
     bot.send_message(message.chat.id, "/add - добавить новую задачу👩‍💻\n"
                                       "/del - удалить задачу❌\n"
                                       "/list - список всех задач🌐\n"
-                                      "/set_time - создать уведомление✅")
+                                      "/set_time - создать уведомление⏰\n"
+                                      "/task_completed - отметить выполненное задание✅")
 
 
 @bot.message_handler(commands=["add"])  # function for adding new goal
@@ -71,27 +73,16 @@ def get_difficulty(call):
         print(repr(e))
 
 
-@bot.message_handler(commands=["set_time"])  # function to add time
-
+@bot.message_handler(commands=["set_time"])
 def set_time(call):
-    bot.send_message(call.chat.id, "Установи время⏰ на ближайшие сутки в 24 часовом формате через двоеточие, когда ты планируешь "
+    bot.send_message(call.chat.id, "Установи время⏰ на ближайшие сутки в 24 часовом формате через двоеточие, "
+                                   "когда ты планируешь "
                                    "начать работу\n"
                                    "Например, утром, перед работой/учёбой или вечером после основных дел")
-    bot.register_next_step_handler(call, add_new_time)  # add to database
+    bot.register_next_step_handler(call, add_new_time)
 
 
-def print_hi(time):  # work with time format
-    timeHM = time.split(":")
-    if len(timeHM[0]) == 1:
-        time = '0' + time
-    print(time)
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('3:20')
-
-def add_new_time(message):  # read the time from already sent message, add 0 if necessary and starts a reminder
+def add_new_time(message):
     global user_id
     global time
     user_id = message.from_user.id
@@ -105,7 +96,7 @@ def add_new_time(message):  # read the time from already sent message, add 0 if 
     Thread(target=schedule_checker(time)).start()
 
 
-def schedule_checker(time):  # function for regular notifications
+def schedule_checker(time):
     if time is not None:
         schedule.every().day.at(time).do(send_wakeup_message)
     while True:
@@ -113,14 +104,14 @@ def schedule_checker(time):  # function for regular notifications
         sleep(1)
 
 
-def send_wakeup_message():  # function for sending notifications
-    bot.send_message(user_id, "🔥Время взяться за работу🔥\nначинать лучше со сложной задачи:")
+def send_wakeup_message():
+    bot.send_message(user_id, "🔥🔥🔥Время взяться за работу🔥🔥🔥\nначинай лучше со сложной задачи:")
     users_data = UsersData(config.table_path)
     task_list = users_data.get_tasks_for_user(user_id)
     bot.send_message(user_id, task_list)
 
 
-@bot.message_handler(commands=["del"])  # function to delete completed tasks
+@bot.message_handler(commands=["del"])
 def del_task(message):
     bot.send_message(message.from_user.id,
                      f'Список задач:\n{get_tasks_list(message.from_user.id)}')
@@ -128,21 +119,39 @@ def del_task(message):
     bot.register_next_step_handler(message, remove_task_from_data_base)
 
 
-def remove_task_from_data_base(message):  # database editing
+@bot.message_handler(commands=["task_completed"])
+def del_completed_task(message):
+    bot.send_message(message.from_user.id,
+                     f'Список задач:\n{get_tasks_list(message.from_user.id)}')
+    bot.send_message(message.chat.id, "отправь, пожалуйста, текстовым сообщением задачу, которую ты выполнил")
+    bot.register_next_step_handler(message, add_completed_task)
+
+
+def add_completed_task(message):
+    global task
+    task = message.text
+    users_data = UsersData(config.table_path)
+    users_data.add_completed_task(task, message.from_user.id)
+    bot.send_message(message.from_user.id,
+                     f'Отлично, теперь список оставшихся заданий:\n{get_completed_tasks_list(message.from_user.id)}')
+    remove_task_from_data_base(message)
+
+
+def remove_task_from_data_base(message):
     global task
     task = message.text
     users_data = UsersData(config.table_path)
     users_data.delete_task(task)
     bot.send_message(message.from_user.id,
                      f'Готово, теперь список:\n{get_tasks_list(message.from_user.id)}')
-    # delete task из бд пользователя message.chat.id
+    # удаляем task из бд пользователя message.chat.id
 
     send_menu(message)
 
 
 @bot.message_handler(commands=["list"])
 def list_tasks(message):
-    task_list = get_tasks_list(message.from_user.id)
+    task_list = get_tasks_list(message.from_user.id) + get_completed_tasks_list(message.from_user.id)
     bot.send_message(message.from_user.id, "начинать лучше со сложной задачи:")
     bot.send_message(message.from_user.id, task_list)
     # в list cписок всех задач пользователя
@@ -152,6 +161,14 @@ def list_tasks(message):
 def get_tasks_list(user_id):
     users_data = UsersData(config.table_path)
     task_list = users_data.get_tasks_for_user(user_id)
+    if len(task_list) == 0:
+        task_list = 'список пуст'
+    return task_list
+
+
+def get_completed_tasks_list(user_id):
+    users_data = UsersData(config.table_path)
+    task_list = users_data.get_completed_tasks_for_user(user_id)
     if len(task_list) == 0:
         task_list = 'список пуст'
     return task_list
