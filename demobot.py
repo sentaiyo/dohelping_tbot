@@ -151,7 +151,7 @@ def remove_task_from_data_base(message):
 
 @bot.message_handler(commands=["list"])
 def list_tasks(message):
-    task_list = get_tasks_list(message.from_user.id) + get_completed_tasks_list(message.from_user.id)
+    task_list = get_tasks_list(message.from_user.id)
     bot.send_message(message.from_user.id, "начинать лучше со сложной задачи:")
     bot.send_message(message.from_user.id, task_list)
     # в list cписок всех задач пользователя

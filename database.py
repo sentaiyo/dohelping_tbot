@@ -143,6 +143,7 @@ class UsersData(DataBase):
         super().__init__(path)
         self.create_users_table()
         self.create_tasks_table()
+        self.create_completed_tasks_table()
         self.create_times_table()
 
     def create_users_table(self):
