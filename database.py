@@ -182,8 +182,9 @@ class UsersData(DataBase):
         self.insert('completed_tasks', ('task', 'user_id'), (task, user_id))
 
     def get_tasks_for_user(self, user_id):
-        tasks = []
         tasks = self.select('tasks', 'task', 'user_id', 'difficulty')
+        if tasks is None:
+            tasks = []
         tasks_for_user1 = ''
         tasks_for_user2 = ''
         tasks_for_user3 = ''
@@ -201,8 +202,9 @@ class UsersData(DataBase):
         return tasks_for_user3 + tasks_for_user2 + tasks_for_user1
 
     def get_completed_tasks_for_user(self, user_id):
-        tasks = []
         tasks = self.select('completed_tasks', 'task', 'user_id', 'difficulty')
+        if tasks is None:
+            tasks = []
         tasks_for_user = ''
         for task in tasks:
             if task[1] == user_id:
