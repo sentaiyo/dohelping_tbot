@@ -123,25 +123,6 @@ def del_task(message):
     bot.register_next_step_handler(message, remove_task_from_data_base)
 
 
-@bot.message_handler(commands=["task_completed"])
-def del_completed_task(message):
-    bot.send_message(message.from_user.id,
-                     f'Список задач:\n{get_tasks_list(message.from_user.id)}')
-    bot.send_message(message.chat.id, "отправь, пожалуйста, текстовым сообщением задачу, которую ты выполнил")
-    bot.register_next_step_handler(message, add_completed_task)
-
-
-def add_completed_task(message):
-    global task
-    task = message.text
-    users_data = UsersData(config.table_path)
-    users_data.add_completed_task(task, message.from_user.id)
-    bot.send_message(message.from_user.id,
-                     f'Отлично, теперь список оставшихся заданий:\n{get_completed_tasks_list(message.from_user.id)}')
-    users_data.connection.close()
-    remove_task_from_data_base(message)
-
-
 def remove_task_from_data_base(message):
     global task
     task = message.text
@@ -167,15 +148,6 @@ def list_tasks(message):
 def get_tasks_list(user_id):
     users_data = UsersData(config.table_path)
     task_list = users_data.get_tasks_for_user(user_id)
-    if len(task_list) == 0:
-        task_list = 'список пуст'
-    users_data.connection.close()
-    return task_list
-
-
-def get_completed_tasks_list(user_id):
-    users_data = UsersData(config.table_path)
-    task_list = users_data.get_completed_tasks_for_user(user_id)
     if len(task_list) == 0:
         task_list = 'список пуст'
     users_data.connection.close()

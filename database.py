@@ -143,7 +143,6 @@ class UsersData(DataBase):
         super().__init__(path)
         self.create_users_table()
         self.create_tasks_table()
-        self.create_completed_tasks_table()
         self.create_times_table()
 
     def create_users_table(self):
@@ -162,13 +161,6 @@ class UsersData(DataBase):
                           'time TEXT NOT NULL',
                           'user_id INTEGER NOT NULL')
 
-    def create_completed_tasks_table(self):
-        self.create_table('completed_tasks',
-                          'FOREIGN KEY (user_id) REFERENCES users (id)',
-                          'task TEXT NOT NULL',
-                          'difficulty INTEGER NOT NULL',
-                          'user_id INTEGER NOT NULL')
-
     def add_user(self, user_id):
         self.insert('users', ('id',), (user_id,))
 
@@ -177,9 +169,6 @@ class UsersData(DataBase):
 
     def add_task(self, task, difficulty, user_id):
         self.insert('tasks', ('task', 'difficulty', 'user_id'), (task, difficulty, user_id))
-
-    def add_completed_task(self, task, user_id):
-        self.insert('completed_tasks', ('task', 'user_id'), (task, user_id))
 
     def get_tasks_for_user(self, user_id):
         tasks = self.select('tasks', 'task', 'user_id', 'difficulty')
@@ -200,16 +189,6 @@ class UsersData(DataBase):
                     tasks_for_user3 += f'\n{task[0]}\n' \
                                        f'сложная задача\n'
         return tasks_for_user3 + tasks_for_user2 + tasks_for_user1
-
-    def get_completed_tasks_for_user(self, user_id):
-        tasks = self.select('completed_tasks', 'task', 'user_id', 'difficulty')
-        if tasks is None:
-            tasks = []
-        tasks_for_user = ''
-        for task in tasks:
-            if task[1] == user_id:
-                tasks_for_user += f'\n{task[0]}\n'
-        return tasks_for_user
 
     def delete_task(self, task):
         self.delete('tasks', 'task', task)
