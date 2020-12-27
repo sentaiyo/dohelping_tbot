@@ -30,8 +30,7 @@ def send_menu(message):  # bot sends all possible commands
     bot.send_message(message.chat.id, "/add - добавить новую задачу👩‍💻\n"
                                       "/del - удалить задачу❌\n"
                                       "/list - список всех задач🌐\n"
-                                      "/set_time - создать уведомление⏰\n"
-                                      "/task_completed - отметить выполненное задание✅")
+                                      "/set_time - создать уведомление⏰\n")
 
 
 @bot.message_handler(commands=["add"])  # function for adding new goal
