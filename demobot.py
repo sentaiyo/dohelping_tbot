@@ -54,14 +54,14 @@ def get_task(message):  # function takes goal information from user
     bot.send_message(message.chat.id, "отправь, пожалуйста, сложность🤯 своей задачи", reply_markup=markup)
 
 
-@bot.callback_query_handler(func=lambda call: True)  # func fot this handler
+@bot.callback_query_handler(func=lambda call: True)  # func answers button calls
 def get_difficulty(call):
     try:
         if call.message:
             global task
             global difficulty
             global user_id
-            difficulty = call.data
+            difficulty = call.data  # gets button data
             users_data = UsersData(config.table_path)
             users_data.add_task(task, difficulty, user_id)  # add the task to the database to user message.chat.id
             # remove inline buttons
@@ -69,7 +69,7 @@ def get_difficulty(call):
                                   text="отправь, пожалуйста, сложность🤯 своей задачи",
                                   reply_markup=None)
             users_data.connection.close()
-            set_time(call.message)
+            set_time(call.message)  # making time notification
     except Exception as e:
         print(repr(e))
 
@@ -87,19 +87,19 @@ def add_new_time(message):
     global user_id
     global time
     user_id = message.from_user.id
-    time = message.text
+    time = message.text  # takes time from user
     if len(time) == 4:
         time = "0" + time
     users_data = UsersData(config.table_path)
-    users_data.add_time(time, user_id)
+    users_data.add_time(time, user_id)     # sends time to table path
     users_data.connection.close()
     bot.reply_to(message, "Готово")
     send_menu(message)
     Thread(target=schedule_checker(time)).start()
 
 
-def schedule_checker(time):
-    if time is not None:
+def schedule_checker(time):  # sends wakeup message
+    if time is not None:  # checks if the time is right
         schedule.every().day.at(time).do(send_wakeup_message)
     while True:
         schedule.run_pending()
@@ -108,14 +108,14 @@ def schedule_checker(time):
 
 def send_wakeup_message():
     bot.send_message(user_id, "🔥🔥🔥Время взяться за работу🔥🔥🔥\nначинай лучше со сложной задачи:")
-    users_data = UsersData(config.table_path)
+    users_data = UsersData(config.table_path)  # takes data about task list in database and sends it
     task_list = users_data.get_tasks_for_user(user_id)
     bot.send_message(user_id, task_list)
     users_data.connection.close()
 
 
 @bot.message_handler(commands=["del"])
-def del_task(message):
+def del_task(message):   # takes exact task to delete
     bot.send_message(message.from_user.id,
                      f'Список задач:\n{get_tasks_list(message.from_user.id)}')
     bot.send_message(message.chat.id, "отправь, пожалуйста, текстовым сообщением задачу, которую нужно удалить")
@@ -126,7 +126,7 @@ def remove_task_from_data_base(message):
     global task
     task = message.text
     users_data = UsersData(config.table_path)
-    users_data.delete_task(task)
+    users_data.delete_task(task)  # deletes task in database
     bot.send_message(message.from_user.id,
                      f'Готово, теперь список:\n{get_tasks_list(message.from_user.id)}')
     # удаляем task из бд пользователя message.chat.id
@@ -137,7 +137,7 @@ def remove_task_from_data_base(message):
 
 @bot.message_handler(commands=["list"])
 def list_tasks(message):
-    task_list = get_tasks_list(message.from_user.id)
+    task_list = get_tasks_list(message.from_user.id)  # lists tasks from database
     bot.send_message(message.from_user.id, "начинать лучше со сложной задачи:")
     bot.send_message(message.from_user.id, task_list)
     # в list cписок всех задач пользователя
@@ -146,18 +146,18 @@ def list_tasks(message):
 
 def get_tasks_list(user_id):
     users_data = UsersData(config.table_path)
-    task_list = users_data.get_tasks_for_user(user_id)
+    task_list = users_data.get_tasks_for_user(user_id)  # task list is taken from database
     if len(task_list) == 0:
         task_list = 'список пуст'
     users_data.connection.close()
     return task_list
 
 
-@bot.message_handler(func=lambda message: True)
+@bot.message_handler(func=lambda message: True) # bot answers messages that it doesnt understand
 def echo_all(message):
     bot.reply_to(message, "я тебя не понимаю((")
     send_menu(message)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # starting bot
      bot.infinity_polling()
