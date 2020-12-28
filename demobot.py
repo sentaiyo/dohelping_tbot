@@ -17,7 +17,7 @@ user_id = None
 @bot.message_handler(commands=["start", "help"])  # bot answers /start /help
 def start_replier(message):
     bot.send_message(message.chat.id, "Привет 💫, {0.first_name}!\nменя зовут toDoBot и я бот, который поможет "
-                     "тебе быть продуктивнее".format(
+                     "тебе быть продуктивнее, просто тыкни на то, что тебе нужно".format(
                          message.from_user, bot.get_me()),
                      parse_mode='html')
     send_menu(message)
