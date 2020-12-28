@@ -13,7 +13,7 @@ class DataBase:
         print(f"""The error '{error}' occurred in query:
 {query}""")
 
-    def connect(self, path):
+    def connect(self, path):  # connecting to database
         try:
             self.connection = sqlite3.connect(path)
         except Error as e:
@@ -27,7 +27,7 @@ class DataBase:
         except Error as e:
             self.print_error(e, query)
 
-    def execute_read_query(self, query):
+    def execute_read_query(self, query):  # executing query to read data
         cursor = self.connection.cursor()
         try:
             cursor.execute(query)
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS {table_name}(
 """
         self.execute_query(create_table_query)
 
-    def insert_one_parameter(self, table_name, parameter, string1, strings):
+    def insert_one_parameter(self, table_name, parameter, string1, strings):  # inserting parameter if there is no other
         insert_query = f"""
 INSERT INTO
     {table_name} ({parameter})
@@ -112,6 +112,7 @@ FROM
         return self.execute_read_query(select_query)
 
     def update(self, table_name, test_parameter, update_parameter1, *update_parameters):
+        # changes strings in the table if test parameter is that we need
         update_query = f"""
 UPDATE
     {table_name}
@@ -146,7 +147,7 @@ class UsersData(DataBase):
         self.create_times_table()
 
     def create_users_table(self):
-        self.create_table('users', None)
+        self.create_table('users', None)  # creating table with users ids
 
     def create_tasks_table(self):
         self.create_table('tasks',
@@ -155,7 +156,7 @@ class UsersData(DataBase):
                           'difficulty INTEGER NOT NULL',
                           'user_id INTEGER NOT NULL')
 
-    def create_times_table(self):
+    def create_times_table(self):  # creating table with times when users are not busy
         self.create_table('times',
                           'FOREIGN KEY (user_id) REFERENCES users (id)',
                           'time TEXT NOT NULL',
@@ -170,7 +171,7 @@ class UsersData(DataBase):
     def add_task(self, task, difficulty, user_id):
         self.insert('tasks', ('task', 'difficulty', 'user_id'), (task, difficulty, user_id))
 
-    def get_tasks_for_user(self, user_id):
+    def get_tasks_for_user(self, user_id):  # returns list of tasks with their difficulties
         tasks = self.select('tasks', 'task', 'user_id', 'difficulty')
         if tasks is None:
             tasks = []
